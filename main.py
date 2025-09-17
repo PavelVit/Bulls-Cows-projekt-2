@@ -12,9 +12,10 @@ LINE = "-" * 62
 
 
 def generate_secret_number():
-    """Generates a random 4-digit number with unique digits (not starting with 0)."""
-    digits = random.sample("123456789", 1) + random.sample("0123456789", 3)
-    return "".join(digits)
+    first = random.choice("123456789")  
+    pool = [d for d in "0123456789" if d != first]  
+    rest = random.sample(pool, 3)  
+    return first + "".join(rest)
 
 
 def is_valid_guess(guess):
@@ -24,13 +25,24 @@ def is_valid_guess(guess):
     - all digits are unique
     - does not start with 0
     - contains only numbers
+    Additionally: prints detailed feedback if invalid.
     """
-    return (
-        guess.isdigit()
-        and len(guess) == 4
-        and guess[0] != "0"
-        and len(set(guess)) == 4
-    )
+    errors = []
+
+    if not guess.isdigit():
+        errors.append("Your guess must contain digits only.")
+    if len(guess) != 4:
+        errors.append("Your guess must have 4 digits.")
+    if guess and guess[0] == "0":
+        errors.append("Your guess must not start with 0.")
+    if len(set(guess)) != len(guess):
+        errors.append("Digits must be unique.")
+
+    if errors:
+        print("\n".join(f"- {e}" for e in errors))
+        print(LINE)
+        return False
+    return True
 
 
 def evaluate_guess(secret, guess):
@@ -71,7 +83,8 @@ def main():
     start_time = time.time()
 
     while True:
-        guess = input("Enter a number:\n" + LINE + "\n>>> ").strip()
+        guess = input(f"Enter a number:\n{LINE}\n>>> ").strip()
+
 
         if not is_valid_guess(guess):
             print(
@@ -99,4 +112,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
